@@ -1,43 +1,67 @@
 #include <iostream>
+#include <vector>
 using namespace std;
 
-struct TreeNode {
-    int val;
-    TreeNode* left;
-    TreeNode* right;
+const int ALPHABET_SIZE = 26;
 
-    TreeNode(int value) {
-        val = value;
-        left = nullptr;
-        right = nullptr;
+struct TrieNode {
+    vector<TrieNode*> children;
+    bool isEndOfWord;
+
+    TrieNode() {
+        children.resize(ALPHABET_SIZE, nullptr);
+        isEndOfWord = false;
     }
 };
 
-void dfs(TreeNode* node) {
-    if (node == nullptr) {
-        return;
+class Trie {
+private:
+    TrieNode* root;
+
+public:
+    Trie() {
+        root = new TrieNode();
     }
 
-    // Process the data of the current node
-    cout << node->val << " ";
+    void insert(const string& word) {
+        TrieNode* node = root;
+        for (char ch : word) {
+            int index = ch - 'a';
+            if (node->children[index] == nullptr)
+                node->children[index] = new TrieNode();
+            node = node->children[index];
+        }
+        node->isEndOfWord = true;
+    }
 
-    // Recursively traverse the left subtree
-    dfs(node->left);
+    void dfs(TrieNode* node, string currentWord) {
+        if (node->isEndOfWord)
+            cout << currentWord << endl;
 
-    // Recursively traverse the right subtree
-    dfs(node->right);
-}
+        for (int i = 0; i < ALPHABET_SIZE; ++i) {
+            if (node->children[i] != nullptr) {
+                char ch = i + 'a';
+                dfs(node->children[i], currentWord + ch);
+            }
+        }
+    }
+
+    void dfsTraversal() {
+        dfs(root, "");
+    }
+};
 
 int main() {
-    TreeNode* root = new TreeNode(1);
-    root->left = new TreeNode(2);
-    root->right = new TreeNode(3);
-    root->left->left = new TreeNode(4);
-    root->left->right = new TreeNode(5);
+    Trie trie;
+    trie.insert("apple");
+    trie.insert("banana");
+    trie.insert("car");
+    trie.insert("cat");
+    trie.insert("dog");
+    trie.insert("zebra");
 
-    // Perform DFS traversal
-    dfs(root);
-    cout << endl;
+    cout << "Words in the Trie (DFS traversal):" << endl;
+    trie.dfsTraversal();
 
     return 0;
 }
